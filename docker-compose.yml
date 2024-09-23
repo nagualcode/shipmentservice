@@ -1,0 +1,53 @@
+services:
+  postgres:
+    image: postgres:13
+    container_name: postgres-encomendas
+    environment:
+      POSTGRES_USER: encomendas_user
+      POSTGRES_PASSWORD: encomendas_pass
+      POSTGRES_DB: encomendas_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - encomendas-network
+
+  trackingservice:
+    build:
+      context: ./trackingservice
+      dockerfile: Dockerfile
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/encomendas_db
+      SPRING_DATASOURCE_USERNAME: encomendas_user
+      SPRING_DATASOURCE_PASSWORD: encomendas_pass
+    depends_on:
+      - postgres
+    ports:
+      - "8080:8080"
+    networks:
+      - encomendas-network
+
+  notificationservice:
+    build:
+      context: ./notificationservice
+      dockerfile: Dockerfile
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/encomendas_db
+      SPRING_DATASOURCE_USERNAME: encomendas_user
+      SPRING_DATASOURCE_PASSWORD: encomendas_pass
+      TRACKING_SERVICE_URL: http://trackingservice:8080
+    depends_on:
+      - postgres
+      - trackingservice
+    ports:
+      - "8081:8081"
+    networks:
+      - encomendas-network
+
+volumes:
+  postgres_data:
+
+networks:
+  encomendas-network:
+    driver: bridge
