@@ -3,6 +3,7 @@ package br.nagualcode.userservice.model;
 import jakarta.persistence.*;
 
 @Entity
+@Table(name = "packages", schema = "userservice")
 public class Package {
 
     @Id
@@ -12,11 +13,14 @@ public class Package {
     @Column(nullable = false, unique = true)
     private String trackingNumber;
 
-    // toString method to call the TrackingService
-    @Override
-    public String toString() {
-        // OpenFeign will be used to query the status from trackingservice
-        return "Package: " + this.trackingNumber;  // We will implement the Feign client later
+    @ManyToOne
+    @JoinColumn(name = "user_id")
+    private User user;
+
+    public Package() {}
+
+    public Package(String trackingNumber, String status) {
+        this.trackingNumber = trackingNumber;
     }
 
 	public Long getId() {
@@ -35,5 +39,15 @@ public class Package {
 		this.trackingNumber = trackingNumber;
 	}
 
-    // Getters and Setters
+	public User getUser() {
+		return user;
+	}
+
+	public void setUser(User user) {
+		this.user = user;
+	}
+
+    
+    // Getters and setters
 }
+

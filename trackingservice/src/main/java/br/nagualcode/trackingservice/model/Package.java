@@ -3,6 +3,7 @@ package br.nagualcode.trackingservice.model;
 import jakarta.persistence.*;
 
 @Entity
+@Table(name = "packages", schema = "trackingservice")
 public class Package {
 
     @Id

@@ -2,6 +2,8 @@ package br.nagualcode.trackingservice.controller;
 
 import br.nagualcode.trackingservice.model.Package;
 import br.nagualcode.trackingservice.repository.PackageRepository;
+import jakarta.transaction.Transactional;
+
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -37,6 +39,7 @@ public class TrackingController {
     }
 
     @DeleteMapping("/{trackingNumber}")
+    @Transactional
     public void deletePackage(@PathVariable String trackingNumber) {
         packageRepository.deleteByTrackingNumber(trackingNumber);
     }

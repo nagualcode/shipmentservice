@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import java.util.List;
 
 @Entity
+@Table(name = "users", schema = "userservice")
 public class User {
 
     @Id
@@ -13,8 +14,15 @@ public class User {
     @Column(nullable = false, unique = true)
     private String email;
 
-    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "user")
     private List<Package> packages;
+
+    public User() {}
+
+    public User(String email, List<Package> packages) {
+        this.email = email;
+        this.packages = packages;
+    }
 
 	public Long getId() {
 		return id;
@@ -40,7 +48,6 @@ public class User {
 		this.packages = packages;
 	}
 
-    // Getters and Setters
+    // Getters and setters
     
 }
-
