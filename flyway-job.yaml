@@ -1,0 +1,27 @@
+
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: flyway-migration-job
+spec:
+  template:
+    spec:
+      containers:
+        - name: flyway
+          image: flyway/flyway:9
+          env:
+            - name: FLYWAY_URL
+              value: jdbc:postgresql://postgres-service:5432/main_db
+            - name: FLYWAY_USER
+              value: "postgres"
+            - name: FLYWAY_PASSWORD
+              value: "password"
+          volumeMounts:
+            - name: flyway-migrations
+              mountPath: /flyway/sql
+          command: ["-schemas=userservice,trackingservice", "migrate"]
+      restartPolicy: Never
+      volumes:
+        - name: flyway-migrations
+          hostPath:
+            path: "./flyway/migrations"
