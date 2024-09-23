@@ -21,6 +21,12 @@ public class PackageController {
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
+    
+    @PostMapping
+    public ResponseEntity<Package> createPackage(@RequestBody Package newPackage) {
+        Package createdPackage = packageService.savePackage(newPackage);
+        return ResponseEntity.ok(createdPackage);
+    }
 
     @PutMapping("/{trackingNumber}/status")
     public ResponseEntity<Package> updatePackageStatus(@PathVariable String trackingNumber, @RequestBody String status) {
