@@ -1,4 +1,4 @@
-package br.nagualcode.trackingservice.model;
+package br.nagualcode.userservice.model;
 
 import jakarta.persistence.*;
 
@@ -12,8 +12,12 @@ public class Package {
     @Column(nullable = false, unique = true)
     private String trackingNumber;
 
-    @Column(nullable = false)
-    private String status;  // Status like 'shipped', 'in transit', 'delivered', etc.
+    // toString method to call the TrackingService
+    @Override
+    public String toString() {
+        // OpenFeign will be used to query the status from trackingservice
+        return "Package: " + this.trackingNumber;  // We will implement the Feign client later
+    }
 
 	public Long getId() {
 		return id;
@@ -31,14 +35,5 @@ public class Package {
 		this.trackingNumber = trackingNumber;
 	}
 
-	public String getStatus() {
-		return status;
-	}
-
-	public void setStatus(String status) {
-		this.status = status;
-	}
-
     // Getters and Setters
-    
 }

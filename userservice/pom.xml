@@ -9,9 +9,9 @@
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>br.nagualcode</groupId>
-	<artifactId>trackingservice</artifactId>
+	<artifactId>userservice</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>trackingservice</name>
+	<name>userservice</name>
 	<description>users and packages</description>
 	<url/>
 	<licenses>

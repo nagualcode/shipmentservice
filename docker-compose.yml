@@ -1,53 +1,52 @@
 services:
-  postgres:
+  postgres-db:
     image: postgres:13
-    container_name: postgres-encomendas
     environment:
-      POSTGRES_USER: encomendas_user
-      POSTGRES_PASSWORD: encomendas_pass
-      POSTGRES_DB: encomendas_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: main_db
     ports:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
-    networks:
-      - encomendas-network
 
-  trackingservice:
-    build:
-      context: ./trackingservice
-      dockerfile: Dockerfile
-    environment:
-      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/encomendas_db
-      SPRING_DATASOURCE_USERNAME: encomendas_user
-      SPRING_DATASOURCE_PASSWORD: encomendas_pass
+  flyway:
+    image: flyway/flyway:9
     depends_on:
-      - postgres
-    ports:
-      - "8080:8080"
-    networks:
-      - encomendas-network
+      - postgres-db
+    environment:
+      - FLYWAY_URL=jdbc:postgresql://postgres-db:5432/main_db
+      - FLYWAY_USER=postgres
+      - FLYWAY_PASSWORD=password
+    volumes:
+      - ./flyway/migrations:/flyway/sql
+    command: -schemas=userservice,trackingservice migrate
 
-  notificationservice:
+  userservice:
+    image: userservice:latest  # Ensure this image is built or modify to use a Dockerfile
     build:
-      context: ./notificationservice
-      dockerfile: Dockerfile
-    environment:
-      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/encomendas_db
-      SPRING_DATASOURCE_USERNAME: encomendas_user
-      SPRING_DATASOURCE_PASSWORD: encomendas_pass
-      TRACKING_SERVICE_URL: http://trackingservice:8080
+      context: ./userservice
     depends_on:
-      - postgres
-      - trackingservice
+      - postgres-db
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres-db:5432/main_db
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: password
     ports:
       - "8081:8081"
-    networks:
-      - encomendas-network
+
+  trackingservice:
+    image: trackingservice:latest  # Ensure this image is built or modify to use a Dockerfile
+    build:
+      context: ./trackingservice
+    depends_on:
+      - postgres-db
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres-db:5432/main_db
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: password
+    ports:
+      - "8082:8082"
 
 volumes:
   postgres_data:
-
-networks:
-  encomendas-network:
-    driver: bridge
