@@ -54,11 +54,18 @@ public class UserController {
 
     @PostMapping("/{id}/packages")
     public User addPackageToUser(@PathVariable Long id, @RequestBody Package pack) {
+
+   
+        if (packageRepository.existsByTrackingNumber(pack.getTrackingNumber())) {
+            throw new RuntimeException("Package with tracking number " + pack.getTrackingNumber() + " already exists.");
+        }
+
         return userRepository.findById(id)
                 .map(user -> {
-                    packageRepository.save(pack);
-                    user.getPackages().add(pack);
-                    return userRepository.save(user);
+                    pack.setUser(user);  
+                    packageRepository.save(pack);  
+                    user.getPackages().add(pack); 
+                    return userRepository.save(user);  
                 })
                 .orElseThrow(() -> new RuntimeException("User not found"));
     }
@@ -67,8 +74,9 @@ public class UserController {
     public User removePackageFromUser(@PathVariable Long id, @PathVariable String trackingNumber) {
         return userRepository.findById(id)
                 .map(user -> {
+                    
                     user.getPackages().removeIf(p -> p.getTrackingNumber().equals(trackingNumber));
-                    return userRepository.save(user);
+                    return userRepository.save(user);  
                 })
                 .orElseThrow(() -> new RuntimeException("User not found"));
     }

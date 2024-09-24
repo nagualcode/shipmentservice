@@ -116,8 +116,10 @@ public class UserserviceApplicationTests {
     @Test
     public void testAddPackageToUser() throws Exception {
         User user = new User("test@example.com", new ArrayList<>());
-        Package pack = new Package("TRACK123", "In Transit");
+        Package pack = new Package("TRACK123"); // Construtor corrigido
 
+        // Simula o comportamento do repository para checar se o trackingNumber já existe
+        Mockito.when(packageRepository.existsByTrackingNumber("TRACK123")).thenReturn(false);
         Mockito.when(userRepository.findById(anyLong())).thenReturn(Optional.of(user));
         Mockito.when(userRepository.save(any(User.class))).thenReturn(user);
         Mockito.when(packageRepository.save(any(Package.class))).thenReturn(pack);
@@ -131,7 +133,7 @@ public class UserserviceApplicationTests {
 
     @Test
     public void testRemovePackageFromUser() throws Exception {
-        Package pack = new Package("TRACK123", "In Transit");
+        Package pack = new Package("TRACK123"); // Construtor corrigido
         User user = new User("test@example.com", new ArrayList<>());
         user.getPackages().add(pack);
 
@@ -141,4 +143,5 @@ public class UserserviceApplicationTests {
         mockMvc.perform(delete("/users/{id}/packages/{trackingNumber}", 1L, "TRACK123"))
                 .andExpect(status().isOk());
     }
+
 }

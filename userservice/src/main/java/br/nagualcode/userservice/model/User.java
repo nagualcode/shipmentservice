@@ -1,6 +1,7 @@
 package br.nagualcode.userservice.model;
 
 import jakarta.persistence.*;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import java.util.List;
 
 @Entity
@@ -14,6 +15,7 @@ public class User {
     @Column(nullable = false, unique = true)
     private String email;
 
+    @JsonManagedReference
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "user")
     private List<Package> packages;
 

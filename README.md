@@ -19,6 +19,8 @@ O **UserService** possui uma entidade `Package`, onde o método `toString` reali
 ### Diagrama de sequencia
 ![Diagrama de Sequence](sequence.png)
 
+Essa abordagem segue o princípio de separação de preocupações, onde cada microservice se concentra em uma funcionalidade específica (o UserService gerencia usuários e o TrackingService gerencia rastreamento). Essa modularidade facilita a manutenção e evolução da aplicação.
+
 
 ## Orquestração com Kubernetes
 

@@ -1,5 +1,8 @@
 package br.nagualcode.userservice.model;
 
+import br.nagualcode.userservice.client.TrackingServiceClient;
+import com.fasterxml.jackson.annotation.JsonBackReference;
+
 import jakarta.persistence.*;
 
 @Entity
@@ -13,41 +16,57 @@ public class Package {
     @Column(nullable = false, unique = true)
     private String trackingNumber;
 
+    @JsonBackReference
     @ManyToOne
     @JoinColumn(name = "user_id")
     private User user;
 
+    @Transient 
+    private TrackingServiceClient trackingServiceClient;
+
     public Package() {}
 
-    public Package(String trackingNumber, String status) {
+    public Package(String trackingNumber) {
         this.trackingNumber = trackingNumber;
     }
 
-	public Long getId() {
-		return id;
-	}
+    public Package(String trackingNumber, TrackingServiceClient trackingServiceClient) {
+        this.trackingNumber = trackingNumber;
+        this.trackingServiceClient = trackingServiceClient;
+    }
 
-	public void setId(Long id) {
-		this.id = id;
-	}
+    public Long getId() {
+        return id;
+    }
 
-	public String getTrackingNumber() {
-		return trackingNumber;
-	}
+    public void setId(Long id) {
+        this.id = id;
+    }
 
-	public void setTrackingNumber(String trackingNumber) {
-		this.trackingNumber = trackingNumber;
-	}
+    public String getTrackingNumber() {
+        return trackingNumber;
+    }
 
-	public User getUser() {
-		return user;
-	}
+    public void setTrackingNumber(String trackingNumber) {
+        this.trackingNumber = trackingNumber;
+    }
 
-	public void setUser(User user) {
-		this.user = user;
-	}
+    public User getUser() {
+        return user;
+    }
 
-    
-    // Getters and setters
+    public void setUser(User user) {
+        this.user = user;
+    }
+
+    public void setTrackingServiceClient(TrackingServiceClient trackingServiceClient) {
+        this.trackingServiceClient = trackingServiceClient;
+    }
+
+    @Override
+    public String toString() {
+        // Faz a chamada ao TrackingService para obter o status atual do pacote
+        String status = trackingServiceClient.getStatus(this.trackingNumber);
+        return "Package{trackingNumber='" + trackingNumber + "', status='" + status + "'}";
+    }
 }
-
