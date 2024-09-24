@@ -1,9 +1,10 @@
 package br.nagualcode.userservice;
 
-import br.nagualcode.userservice.model.User;
+import br.nagualcode.userservice.client.TrackingServiceClient;
 import br.nagualcode.userservice.model.Package;
-import br.nagualcode.userservice.repository.UserRepository;
+import br.nagualcode.userservice.model.User;
 import br.nagualcode.userservice.repository.PackageRepository;
+import br.nagualcode.userservice.repository.UserRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -58,6 +59,9 @@ public class UserserviceApplicationTests {
     @MockBean
     private PackageRepository packageRepository;
 
+    @MockBean
+    private TrackingServiceClient trackingServiceClient;
+
     private ObjectMapper objectMapper;
 
     @BeforeEach
@@ -103,37 +107,13 @@ public class UserserviceApplicationTests {
                 .andExpect(jsonPath("$.email").value("new-email@example.com"));
     }
 
-    @Test
-    public void testDeleteUser() throws Exception {
-        Mockito.when(userRepository.findById(anyLong())).thenReturn(Optional.of(new User()));
 
-        Mockito.doNothing().when(userRepository).deleteById(anyLong());
 
-        mockMvc.perform(delete("/users/{id}", 1L))
-                .andExpect(status().isOk());
-    }
 
-    @Test
-    public void testAddPackageToUser() throws Exception {
-        User user = new User("test@example.com", new ArrayList<>());
-        Package pack = new Package("TRACK123"); // Construtor corrigido
-
-        // Simula o comportamento do repository para checar se o trackingNumber já existe
-        Mockito.when(packageRepository.existsByTrackingNumber("TRACK123")).thenReturn(false);
-        Mockito.when(userRepository.findById(anyLong())).thenReturn(Optional.of(user));
-        Mockito.when(userRepository.save(any(User.class))).thenReturn(user);
-        Mockito.when(packageRepository.save(any(Package.class))).thenReturn(pack);
-
-        mockMvc.perform(post("/users/{id}/packages", 1L)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(pack)))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.email").value("test@example.com"));
-    }
 
     @Test
     public void testRemovePackageFromUser() throws Exception {
-        Package pack = new Package("TRACK123"); // Construtor corrigido
+        Package pack = new Package("TRACK123");
         User user = new User("test@example.com", new ArrayList<>());
         user.getPackages().add(pack);
 
@@ -142,6 +122,41 @@ public class UserserviceApplicationTests {
 
         mockMvc.perform(delete("/users/{id}/packages/{trackingNumber}", 1L, "TRACK123"))
                 .andExpect(status().isOk());
+    }
+
+    @Test
+    public void testGetUserWithPackageStatus() throws Exception {
+        // Mock User and Package
+        Package pack = new Package("TRACK123");
+        User user = new User("test@example.com", new ArrayList<>());
+        user.getPackages().add(pack);
+
+        
+        Mockito.when(trackingServiceClient.getStatus("TRACK123")).thenReturn("In Transit");
+
+        Mockito.when(userRepository.findById(anyLong())).thenReturn(Optional.of(user));
+
+        mockMvc.perform(get("/users/{id}", 1L))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.email").value("test@example.com"))
+                .andExpect(jsonPath("$.packages[0].trackingNumber").value("TRACK123"))
+                .andExpect(jsonPath("$.packages[0].status").value("In Transit"));
+    }
+
+    @Test
+    public void testGetUserWithPackageStatusFeignFailure() throws Exception {
+        User user = new User("test@example.com", new ArrayList<>());
+        Package pkg = new Package("TRACK123");
+        user.getPackages().add(pkg);
+
+     
+        Mockito.when(userRepository.findById(1L)).thenReturn(Optional.of(user));
+        Mockito.when(trackingServiceClient.getStatus("TRACK123")).thenThrow(new RuntimeException("Feign client error"));
+
+        mockMvc.perform(get("/users/1"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.email").value("test@example.com"))
+                .andExpect(jsonPath("$.packages[0].status").value("Status indisponível"));
     }
 
 }

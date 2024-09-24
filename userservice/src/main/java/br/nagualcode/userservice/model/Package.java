@@ -1,8 +1,6 @@
 package br.nagualcode.userservice.model;
 
-import br.nagualcode.userservice.client.TrackingServiceClient;
 import com.fasterxml.jackson.annotation.JsonBackReference;
-
 import jakarta.persistence.*;
 
 @Entity
@@ -16,23 +14,18 @@ public class Package {
     @Column(nullable = false, unique = true)
     private String trackingNumber;
 
+    @Column(nullable = true) // Adiciona o campo status
+    private String status;
+
     @JsonBackReference
     @ManyToOne
     @JoinColumn(name = "user_id")
     private User user;
 
-    @Transient 
-    private TrackingServiceClient trackingServiceClient;
-
     public Package() {}
 
     public Package(String trackingNumber) {
         this.trackingNumber = trackingNumber;
-    }
-
-    public Package(String trackingNumber, TrackingServiceClient trackingServiceClient) {
-        this.trackingNumber = trackingNumber;
-        this.trackingServiceClient = trackingServiceClient;
     }
 
     public Long getId() {
@@ -59,18 +52,12 @@ public class Package {
         this.user = user;
     }
 
-    public void setTrackingServiceClient(TrackingServiceClient trackingServiceClient) {
-        this.trackingServiceClient = trackingServiceClient;
+    // Adiciona os métodos getter e setter para status
+    public String getStatus() {
+        return status;
     }
 
-    @Override
-    public String toString() {
-        // Faz a chamada ao TrackingService para obter o status atual do pacote
-        try {
-            String status = trackingServiceClient.getStatus(this.trackingNumber);
-            return "Package{trackingNumber='" + trackingNumber + "', status='" + status + "'}";
-        } catch (Exception e) {
-            return "Package{trackingNumber='" + trackingNumber + "', status='Unknown'}";
-        }
+    public void setStatus(String status) {
+        this.status = status;
     }
 }
