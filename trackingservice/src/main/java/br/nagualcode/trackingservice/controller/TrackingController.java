@@ -4,6 +4,8 @@ import br.nagualcode.trackingservice.model.Package;
 import br.nagualcode.trackingservice.repository.PackageRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.web.bind.annotation.*;
+import java.util.Map;
+import br.nagualcode.trackingservice.exception.PackageNotFoundException;
 
 import java.util.List;
 
@@ -28,16 +30,17 @@ public class TrackingController {
     }
 
     @PutMapping("/{trackingNumber}")
-    public Package updatePackageStatus(@PathVariable String trackingNumber, @RequestBody String status) {
+    public Package updatePackageStatus(@PathVariable String trackingNumber, @RequestBody Map<String, String> statusUpdate) {
+        String status = statusUpdate.get("status");
         return packageRepository.findByTrackingNumber(trackingNumber)
                 .map(pack -> {
                     pack.setStatus(status);
                     return packageRepository.save(pack);
                 })
-                .orElseThrow(() -> new RuntimeException("Package not found"));
+                .orElseThrow(() -> new PackageNotFoundException("Package not found"));
     }
 
-   
+
     @GetMapping("/{trackingNumber}/status")
     public String getPackageStatus(@PathVariable String trackingNumber) {
         return packageRepository.findByTrackingNumber(trackingNumber)

@@ -66,7 +66,11 @@ public class Package {
     @Override
     public String toString() {
         // Faz a chamada ao TrackingService para obter o status atual do pacote
-        String status = trackingServiceClient.getStatus(this.trackingNumber);
-        return "Package{trackingNumber='" + trackingNumber + "', status='" + status + "'}";
+        try {
+            String status = trackingServiceClient.getStatus(this.trackingNumber);
+            return "Package{trackingNumber='" + trackingNumber + "', status='" + status + "'}";
+        } catch (Exception e) {
+            return "Package{trackingNumber='" + trackingNumber + "', status='Unknown'}";
+        }
     }
 }
