@@ -14,7 +14,7 @@ public class Package {
     private String trackingNumber;
 
     @Column(nullable = false)
-    private String status;  // Status like 'shipped', 'in transit', 'delivered', etc.
+    private String status;  
 
 	public Long getId() {
 		return id;

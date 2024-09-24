@@ -102,7 +102,7 @@ public class TrackingserviceApplicationTests {
         mockMvc.perform(delete("/packages/123ABC"))
                 .andExpect(status().isOk());
 
-        // Check if the package is deleted
+      
         mockMvc.perform(get("/packages"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$").isEmpty());
