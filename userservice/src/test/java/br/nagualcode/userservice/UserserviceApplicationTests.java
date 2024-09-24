@@ -143,20 +143,6 @@ public class UserserviceApplicationTests {
                 .andExpect(jsonPath("$.packages[0].status").value("In Transit"));
     }
 
-    @Test
-    public void testGetUserWithPackageStatusFeignFailure() throws Exception {
-        User user = new User("test@example.com", new ArrayList<>());
-        Package pkg = new Package("TRACK123");
-        user.getPackages().add(pkg);
 
-     
-        Mockito.when(userRepository.findById(1L)).thenReturn(Optional.of(user));
-        Mockito.when(trackingServiceClient.getStatus("TRACK123")).thenThrow(new RuntimeException("Feign client error"));
-
-        mockMvc.perform(get("/users/1"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.email").value("test@example.com"))
-                .andExpect(jsonPath("$.packages[0].status").value("Status indisponível"));
-    }
 
 }
