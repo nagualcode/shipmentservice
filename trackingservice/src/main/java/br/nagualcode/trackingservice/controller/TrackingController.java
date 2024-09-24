@@ -30,15 +30,16 @@ public class TrackingController {
     }
 
     @PutMapping("/{trackingNumber}")
-    public Package updatePackageStatus(@PathVariable String trackingNumber, @RequestBody Map<String, String> statusUpdate) {
-        String status = statusUpdate.get("status");
+    public Package updatePackageStatus(@PathVariable String trackingNumber, @RequestBody Map<String, String> statusMap) {
+        String status = statusMap.get("status");
         return packageRepository.findByTrackingNumber(trackingNumber)
                 .map(pack -> {
                     pack.setStatus(status);
                     return packageRepository.save(pack);
                 })
-                .orElseThrow(() -> new PackageNotFoundException("Package not found"));
+                .orElseThrow(() -> new RuntimeException("Package not found"));
     }
+
 
 
     @GetMapping("/{trackingNumber}/status")

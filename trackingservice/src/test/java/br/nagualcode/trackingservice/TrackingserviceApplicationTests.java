@@ -15,7 +15,6 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-
 @AutoConfigureMockMvc
 @Testcontainers
 @SpringBootTest(properties = "spring.config.name=application-test")
@@ -82,7 +81,9 @@ public class TrackingserviceApplicationTests {
         pack.setStatus("shipped");
         packageRepository.save(pack);
 
-        String updatedStatus = "delivered";
+        // Send the status update as JSON
+        String updatedStatus = "{\"status\":\"delivered\"}";
+
         mockMvc.perform(put("/packages/123ABC")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(updatedStatus))
@@ -102,7 +103,6 @@ public class TrackingserviceApplicationTests {
         mockMvc.perform(delete("/packages/123ABC"))
                 .andExpect(status().isOk());
 
-      
         mockMvc.perform(get("/packages"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$").isEmpty());
