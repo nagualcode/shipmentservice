@@ -3,6 +3,7 @@ package br.nagualcode.userservice.controller;
 import br.nagualcode.userservice.model.User;
 import br.nagualcode.userservice.model.Package;
 import br.nagualcode.userservice.repository.UserRepository;
+import feign.FeignException;
 import br.nagualcode.userservice.repository.PackageRepository;
 import br.nagualcode.userservice.client.TrackingServiceClient;
 import org.springframework.http.ResponseEntity;
@@ -47,10 +48,11 @@ public class UserController {
                 try {
                     String status = trackingServiceClient.getStatus(pkg.getTrackingNumber());
                     pkg.setStatus(status);
-                } catch (Exception e) {
-                    // Tratar o erro de Feign e definir um valor padrão para status
+                } catch (FeignException e) {
+                    // Log detailed Feign client error
+                    System.err.println("Error calling TrackingService for package: " + pkg.getTrackingNumber());
+                    System.err.println("Feign Error: " + e.getMessage());
                     pkg.setStatus("Status indisponível");
-                    System.out.println("Erro ao chamar o TrackingService para o pacote: " + pkg.getTrackingNumber());
                 }
             });
             return ResponseEntity.ok(user);
@@ -58,6 +60,7 @@ public class UserController {
             return ResponseEntity.notFound().build();
         }
     }
+
 
 
    
