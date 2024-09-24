@@ -3,7 +3,6 @@ package br.nagualcode.trackingservice.controller;
 import br.nagualcode.trackingservice.model.Package;
 import br.nagualcode.trackingservice.repository.PackageRepository;
 import jakarta.transaction.Transactional;
-
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -35,6 +34,14 @@ public class TrackingController {
                     pack.setStatus(status);
                     return packageRepository.save(pack);
                 })
+                .orElseThrow(() -> new RuntimeException("Package not found"));
+    }
+
+   
+    @GetMapping("/{trackingNumber}/status")
+    public String getPackageStatus(@PathVariable String trackingNumber) {
+        return packageRepository.findByTrackingNumber(trackingNumber)
+                .map(Package::getStatus)
                 .orElseThrow(() -> new RuntimeException("Package not found"));
     }
 
