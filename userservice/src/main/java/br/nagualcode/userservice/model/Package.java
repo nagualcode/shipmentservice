@@ -14,7 +14,7 @@ public class Package {
     @Column(nullable = false, unique = true)
     private String trackingNumber;
 
-    @Column(nullable = true) // Adiciona o campo status
+    @Column(nullable = true) 
     private String status;
 
     @JsonBackReference
